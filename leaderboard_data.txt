@@ -5,3 +5,5 @@ Jessie: 2
 Player 1: 14
 Player 1: 12
 Jessie: 5
+Jess: 93
+Guest: 153

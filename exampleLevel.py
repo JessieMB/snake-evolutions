@@ -4,7 +4,7 @@ import pygame_textinput
 from pygame.locals import *
 
 
-class Path(object):
+class Path(object): #Holds level objects
     def __init__(self, name, levelList):
         self.name = name
         self.levelList = levelList
@@ -15,7 +15,7 @@ class Path(object):
     def getLevelList(self):
         return self.levelList
 
-class Level(object):
+class Level(object): #Holds Level, including name, background image, 
     def __init__(self, name, background, spriteList, nodesToWin, levelId):
         self.name = name
         self.background = background
@@ -99,7 +99,7 @@ def main():
     pygame.init()
     BASICFONT = pygame.font.Font('freesansbold.ttf', 18)        
     pygame.display.update()
-    pygame.display.set_caption('The Adventures of Snek!')
+    pygame.display.set_caption('Snake Evolutions')
     
     counter = 0
     
@@ -127,7 +127,7 @@ def getRandomLocation():
 def drawScore(score, Player):
     time = pygame.time.get_ticks()
     totalScore = Player.getScore()
-    timeSurf = BASICFONT.render('Eras Survived: %s'% (time), True, WHITE)
+    timeSurf = BASICFONT.render('Time: %s'% (time), True, WHITE)
     scoreSurf = BASICFONT.render('Score: %s'% (score), True, WHITE)
     totalScoreSurf = BASICFONT.render('Total Score: %s' % (totalScore), True, WHITE)
     
@@ -169,7 +169,7 @@ def drawplayer(playerCoords, Level):
         y = coord['y'] * CELLSIZE
         DISPLAYSURF.blit(randomSprite, (x, y))   
 
-def checkWinPath(Level, Player, currentPath):
+def checkWinPath(Level, Player, currentPath): #Jesus is the code level for the end of a path, and different paths have different jesuses
     if Player.currentLevel == "jesus" and currentPath == "squid":
         winPathway(Level, Player, Path)
     
@@ -177,16 +177,16 @@ def checkWinPath(Level, Player, currentPath):
         winPathway(Level, Player, Path)
         
     if Player.currentLevel == "jesus3" and currentPath == "reptile":
-        winPathway(Level, Player, Path)
-
-def checkWinLevel(score, Level, Player):
+        winGame(Player)
+        
+def checkWinLevel(score, Level, Player): #Checks during runGame() to see if player won level
     nodesToWin = Level.nodesToWin
     
     if(score >= nodesToWin):
-        paused(Level, Player)
+        paused(Level, Player) #To pause menu
         checkForKeyPress() # clear out any key presses in the event queue
 
-def winPathway(Player, Level, Path):
+def winPathway(Player, Level, Path): #Checks to see if whole path is won and prompts user action
     
     Font = pygame.font.Font('freesansbold.ttf', 70)
     gameSurf = Font.render('You Won this path!', True, WHITE)
@@ -206,7 +206,7 @@ def winPathway(Player, Level, Path):
     levelName = Level.name
     levelList = generateFishList()
     
-    for level in levelList:
+    for level in levelList: #testing purposes
         print(level.name)
     
     choose = dm.dumbmenu(DISPLAYSURF, [
@@ -725,6 +725,13 @@ def loadSquidPath():
     levelList = generateSquidList()
     
 
+def survivalMode():
+    currentPlayer = Player("Player",0,"dragon2", "reptile")
+    level = loadDragon2()
+    runGame(level, currentPlayer)
+    showGameOverScreen(level, currentPlayer)
+    mainMenu()  
+        
 def howToPlay():
     DISPLAYSURF.fill(BLACK)
     gameOverFont2 = pygame.font.Font('freesansbold.ttf', 90)    
@@ -1089,6 +1096,19 @@ def loadDragon():
     thisLevel = Level(name,background,spriteList,nodesToWin, path) 
     return thisLevel
 
+def loadDragon2():
+    background = pygame.image.load("dragonBG.png")
+    sprite0 = pygame.image.load("dragon0.png")
+    sprite1 = pygame.image.load("dragon1.png")
+    sprite2 = pygame.image.load("dragon2.png")    
+    nodesToWin = 1000
+    name = "dragon2"
+    path = "reptile"        
+    spriteList = [sprite0, sprite1, sprite2]    
+    thisLevel = Level(name,background,spriteList,nodesToWin, path) 
+    return thisLevel
+
+
 def loadJesus3():
     background = pygame.image.load("heaven1.jpg")
     sprite0 = pygame.image.load("jesus0.png")
@@ -1163,10 +1183,11 @@ def mainMenu():
     SURFACE.fill(BLACK)
     pygame.display.update()
     choose = dm.dumbmenu(DISPLAYSURF, [
-                            'New Game',
-                            'Load Game',
+                            'New Story',
+                            'Load Story',
                             'How To Play',
                             'Leaderboard',
+                            'Survival',
                             'Quit Game'], 64,64,None,32,1.4,PURPLE,RED)
     
     if choose == 0: #New game
@@ -1201,16 +1222,18 @@ def mainMenu():
         viewLeaderboard(currentPlayer)   
         mainMenu()
         
-    if choose == 4: #Quit game
+    elif choose == 4: #Survival Mode
+        survivalMode()
+        mainMenu()    
+        
+    elif choose == 5: #Quit game
         terminate()
     
     else:
-        currentPlayer = Player("Player",0,"amoeba", "squid")    
-        runGame(amoebaLevel, currentPlayer)
         mainMenu()
         return    
 
-def saveGame(Player):
+def saveGame(Player): 
     with open('save_data.pkl', 'wb') as output:
         savedGame = Player.score, Player.currentLevel, Player.name, Player.currentPath
         pickle.dump(savedGame, output, pickle.HIGHEST_PROTOCOL)
@@ -1289,8 +1312,8 @@ def drawPressKeyMsg():
 
 def showStartScreen():
     titleFont = pygame.font.Font('freesansbold.ttf', 50)
-    titleSurf1 = titleFont.render('The Adventures', True, WHITE, BLACK)
-    titleSurf2 = titleFont.render('of SNEK!', True, RED)
+    titleSurf1 = titleFont.render('SNAKE', True, WHITE, BLACK)
+    titleSurf2 = titleFont.render('EVOLUTIONS', True, RED)
     degrees1 = 0
     degrees2 = 0
     while True:
@@ -1385,6 +1408,7 @@ def generateLevelList():
     iguanaLevel = loadIguana()
     crocodileLevel = loadCrocodile()
     dragonLevel = loadDragon()
+    dragon2Level = loadDragon2()    
     jesus3Level = loadJesus3()
     
     levelList = [amoebaLevel, wormLevel, bugLevel, slugLevel, snailLevel, lobsterLevel, jellyfishLevel, squidLevel, fishLevel,
@@ -1419,6 +1443,7 @@ def showGameOverScreen(Level, Player):
     choose = dm.dumbmenu(DISPLAYSURF, [
         'Resume from last level',
         'Main Menu',
+        'Submit To Leaderboard',
         'Quit Game'], 64,64,None,32,1.4,PURPLE,RED)
         
     if choose == 0: #Resume from last level 
@@ -1431,8 +1456,11 @@ def showGameOverScreen(Level, Player):
     elif choose == 1: #Main Menu
         mainMenu()
         
-    elif choose == 2: #Terminate
-        terminate()
+    elif choose == 2: #Submit to leaderboard
+        submitToLeaderboard(Player)
+        
+    elif choose == 3: #Terminate
+        terminate()        
         
     drawPressKeyMsg()
     pygame.display.update()
