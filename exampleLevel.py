@@ -91,13 +91,14 @@ def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, SURFACE
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))    
     mudBG = pygame.image.load("mud.jpg")
+    pygame.font.init()    
     background = mudBG
     DISPLAYSURF.blit(background, [0,0])          
     SURFACE = pygame.image.load("favicon.ico")
     pygame.display.set_icon(SURFACE)
     FPSCLOCK = pygame.time.Clock()
     pygame.init()
-    BASICFONT = pygame.font.Font('freesansbold.ttf', 18)        
+    BASICFONT = pygame.font.SysFont("georgia", 18)        
     pygame.display.update()
     pygame.display.set_caption('Snake Evolutions')
     
@@ -108,12 +109,6 @@ def main():
         counter += 1
         if counter > 0:
             mainMenu()        
-        
-def drawpoison(coord):
-    x = coord['x'] * CELLSIZE
-    y = coord['y'] * CELLSIZE
-    poison = pygame.image.load('poison.png')
-    DISPLAYSURF.blit(poison, (x,y))
     
 def drawfood(coord):
     x = coord['x'] * CELLSIZE
@@ -156,7 +151,8 @@ def winGame(Player):
     DISPLAYSURF.blit(game1surf, game1rect)    
     drawPressKeyMsg()
     pygame.display.update()
-    pygame.time.wait(500)
+    pygame.time.wait(5000)
+    mainMenu()               
     checkForKeyPress() # clear out any key presses in the event queue    
 
 def drawplayer(playerCoords, Level):
@@ -189,13 +185,13 @@ def checkWinLevel(score, Level, Player): #Checks during runGame() to see if play
 def winPathway(Player, Level, Path): #Checks to see if whole path is won and prompts user action
     
     Font = pygame.font.Font('freesansbold.ttf', 70)
-    gameSurf = Font.render('You Won this path!', True, WHITE)
+    gameSurf = Font.render('You won this path!', True, WHITE)
     gameRect = gameSurf.get_rect()
-    gameRect.midtop = (WINDOWWIDTH / 2, 100)
+    gameRect.midtop = (WINDOWWIDTH / 2, 300)
     
     game1surf = Font.render('Continue to next path?', True, WHITE)
     game1rect = gameSurf.get_rect()
-    game1rect.midtop = (WINDOWWIDTH / 3, 300)    
+    game1rect.midtop = (WINDOWWIDTH / 3, 600)    
 
     DISPLAYSURF.blit(gameSurf, gameRect)
     DISPLAYSURF.blit(game1surf, game1rect)    
@@ -214,7 +210,7 @@ def winPathway(Player, Level, Path): #Checks to see if whole path is won and pro
         'Save Game',
         'Main Menu',
         'Submit to Leaderboard',
-        'Quit Game'], 64,64,None,32,1.4,PURPLE,RED)
+        'Quit Game'], 64,64,"rage",64,.9,WHITE,RED)
             
     if choose == 0:
         if levelName == ("jesus"):    
@@ -368,27 +364,11 @@ def winPathway(Player, Level, Path): #Checks to see if whole path is won and pro
         elif levelName == ("dragon"):          
             newLevel = loadJesus3()
             Player.setCurrentLevel(newLevel.name)    
-            runGame(newLevel, Player)
-            showGameOverScreen(newLevel, Player)
-            mainMenu()
             return
         
         elif levelName == ("jesus3"):          
             
             winGame(Player)
-            
-            return              
-           
-           
-        
-        else: 
-            newLevel = loadGuppy()
-            Player.setCurrentLevel(newLevel.name)
-            runGame(newLevel, Player)
-            showGameOverScreen(newLevel, Player)
-            mainMenu()
-            return            
-            
     
     elif choose == 1: #Save game
         saveGame(Player)
@@ -428,11 +408,11 @@ def paused(Level, Player):
     Font = pygame.font.Font('freesansbold.ttf', 100)
     gameSurf = Font.render('You Evolved!', True, WHITE)
     gameRect = gameSurf.get_rect()
-    gameRect.midtop = (WINDOWWIDTH / 2, 100)
+    gameRect.midtop = (WINDOWWIDTH / 2, 400)
     
     game1surf = Font.render(name + ' no longer!', True, WHITE)
     game1rect = gameSurf.get_rect()
-    game1rect.midtop = (WINDOWWIDTH / 3, 300)    
+    game1rect.midtop = (WINDOWWIDTH / 3, 600)    
 
     DISPLAYSURF.blit(gameSurf, gameRect)
     DISPLAYSURF.blit(game1surf, game1rect)    
@@ -446,7 +426,7 @@ def paused(Level, Player):
         'Next Level',
         'Save Game',
         'Submit to Leaderboard',
-        'Quit Game'], 64,64,None,32,1.4,PURPLE,RED)
+        'Quit Game'], 64,64,"rage",64,.9,WHITE,RED)
         
     
     if choose == 0: #Next Level         
@@ -511,20 +491,12 @@ def paused(Level, Player):
             return      
 
         if levelName == ("squid"):          
-            newLevel = loadFish()
-            Player.setCurrentLevel(newLevel.name)    
-            runGame(newLevel, Player)
-            showGameOverScreen(newLevel, Player)
-            mainMenu()
-            return          
-        
-        if levelName == ("fish"):          
             newLevel = loadCthulhu()
             Player.setCurrentLevel(newLevel.name)    
             runGame(newLevel, Player)
             showGameOverScreen(newLevel, Player)
             mainMenu()
-            return    
+            return          
         
         if levelName == ("cthulhu"):          
             newLevel = loadJesus()
@@ -670,11 +642,11 @@ def paused(Level, Player):
             runGame(newLevel, Player)
             showGameOverScreen(newLevel, Player)
             mainMenu()
+            winGame(Player)
             return
         
         elif levelName == ("jesus3"):          
             
-            winGame(Player)
             
             return              
         
@@ -738,7 +710,7 @@ def howToPlay():
     gameOverFont = pygame.font.Font('freesansbold.ttf', 50)
     gameSurf = gameOverFont2.render('How To Play', True, WHITE)
     overSurf = gameOverFont.render("Don't run into yourself, ", True, WHITE)
-    otherSurf = gameOverFont.render("eat poison, or hit the wall!", True, WHITE)
+    otherSurf = gameOverFont.render("or hit the wall!", True, WHITE)
     gameRect = gameSurf.get_rect()
     overRect = overSurf.get_rect()
     otherRect = otherSurf.get_rect()
@@ -763,8 +735,7 @@ def viewLeaderboard(Player):
         content = input.readlines()
     # you may also want to remove whitespace characters like `\n` at the end of each line
     content = [x.strip() for x in content]
-    
-        
+            
     DISPLAYSURF.fill(BLACK)
     gameOverFont2 = pygame.font.Font('freesansbold.ttf', 90)    
     gameOverFont = pygame.font.Font('freesansbold.ttf', 50)
@@ -812,7 +783,7 @@ def loadWorm():
     background = mudBG
     worm0 = pygame.image.load("worm1.png")
     worm1 = pygame.image.load("worm2.png")
-    nodesToWin = 1
+    nodesToWin = 3
     name = "worm"
     path = "squid"    
     spriteList = [worm0, worm1]    
@@ -825,7 +796,7 @@ def loadSlug():
     slug0 = pygame.image.load("slug0.png")
     slug1 = pygame.image.load("slug1.png")
     slug2 = pygame.image.load("slug2.png")    
-    nodesToWin = 1
+    nodesToWin = 4
     name = "slug"
     path = "squid"    
     spriteList = [slug0, slug1, slug2]    
@@ -837,7 +808,7 @@ def loadSnail():
     sprite0 = pygame.image.load("snail0.png")
     sprite1 = pygame.image.load("snail1.png")
     sprite2 = pygame.image.load("snail2.png")    
-    nodesToWin = 1
+    nodesToWin = 5
     name = "snail"
     path = "squid"    
     spriteList = [sprite0, sprite1, sprite2]    
@@ -849,7 +820,7 @@ def loadLobster():
     sprite0 = pygame.image.load("lobster0.png")
     sprite1 = pygame.image.load("lobster1.png")
     sprite2 = pygame.image.load("lobster2.png")    
-    nodesToWin = 1
+    nodesToWin = 6
     name = "lobster"
     path = "squid"    
     spriteList = [sprite0, sprite1, sprite2]    
@@ -861,7 +832,7 @@ def loadJellyfish():
     sprite0 = pygame.image.load("jellyfish0.png")
     sprite1 = pygame.image.load("jellyfish1.png")
     sprite2 = pygame.image.load("jellyfish2.png")    
-    nodesToWin = 1
+    nodesToWin = 7
     name = "jellyfish"
     path = "squid"    
     spriteList = [sprite0, sprite1, sprite2]    
@@ -873,7 +844,7 @@ def loadSquid():
     sprite0 = pygame.image.load("squid0.png")
     sprite1 = pygame.image.load("squid1.png")
     sprite2 = pygame.image.load("squid2.png")    
-    nodesToWin = 1
+    nodesToWin = 8
     name = "squid"
     path = "squid"    
     spriteList = [sprite0, sprite1, sprite2]    
@@ -885,7 +856,7 @@ def loadCthulhu():
     sprite0 = pygame.image.load("cthulhu0.png")
     sprite1 = pygame.image.load("cthulhu1.png")
     sprite2 = pygame.image.load("cthulhu2.png")    
-    nodesToWin = 1
+    nodesToWin = 9
     name = "cthulhu"
     path = "squid"    
     spriteList = [sprite0, sprite1, sprite2]    
@@ -897,7 +868,7 @@ def loadStarfish():
     sprite0 = pygame.image.load("starfish0.png")
     sprite1 = pygame.image.load("starfish1.png")
     sprite2 = pygame.image.load("starfish2.png")    
-    nodesToWin = 1
+    nodesToWin = 3
     path = "fish"    
     name = "starfish"
     spriteList = [sprite0, sprite1, sprite2]    
@@ -909,7 +880,7 @@ def loadGuppy():
     sprite0 = pygame.image.load("guppy0.png")
     sprite1 = pygame.image.load("guppy1.png")
     sprite2 = pygame.image.load("guppy2.png")    
-    nodesToWin = 1
+    nodesToWin = 5
     name = "guppy"
     path = "fish"    
     spriteList = [sprite0, sprite1, sprite2]    
@@ -921,7 +892,7 @@ def loadGoldfish():
     sprite0 = pygame.image.load("goldfish0.png")
     sprite1 = pygame.image.load("goldfish1.png")
     sprite2 = pygame.image.load("goldfish2.png")    
-    nodesToWin = 1
+    nodesToWin = 7
     name = "goldfish"
     path = "fish"    
     spriteList = [sprite0, sprite1, sprite2]    
@@ -933,7 +904,7 @@ def loadCatfish():
     sprite0 = pygame.image.load("catfish0.png")
     sprite1 = pygame.image.load("catfish1.png")
     sprite2 = pygame.image.load("catfish2.png")    
-    nodesToWin = 1
+    nodesToWin = 9
     name = "catfish"
     path = "fish"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -945,7 +916,7 @@ def loadPiranha():
     sprite0 = pygame.image.load("piranha0.png")
     sprite1 = pygame.image.load("piranha1.png")
     sprite2 = pygame.image.load("piranha2.png")    
-    nodesToWin = 1
+    nodesToWin = 11
     name = "piranha"
     path = "fish"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -957,7 +928,7 @@ def loadShark():
     sprite0 = pygame.image.load("shark0.png")
     sprite1 = pygame.image.load("shark1.png")
     sprite2 = pygame.image.load("shark2.png")    
-    nodesToWin = 1
+    nodesToWin = 13
     name = "shark"
     path = "fish"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -969,7 +940,7 @@ def loadDolphin():
     sprite0 = pygame.image.load("dolphin0.png")
     sprite1 = pygame.image.load("dolphin1.png")
     sprite2 = pygame.image.load("dolphin2.png")    
-    nodesToWin = 1
+    nodesToWin = 15
     name = "dolphin"
     path = "fish"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -981,7 +952,7 @@ def loadWhale():
     sprite0 = pygame.image.load("whale0.png")
     sprite1 = pygame.image.load("whale1.png")
     sprite2 = pygame.image.load("whale2.png")    
-    nodesToWin = 1
+    nodesToWin = 17
     path = "fish"        
     name = "whale"
     spriteList = [sprite0, sprite1, sprite2]    
@@ -993,7 +964,7 @@ def loadLochNess():
     sprite0 = pygame.image.load("lochness0.png")
     sprite1 = pygame.image.load("lochness1.png")
     sprite2 = pygame.image.load("lochness2.png")    
-    nodesToWin = 2
+    nodesToWin = 19
     name = "lochness"
     path = "fish"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -1005,7 +976,7 @@ def loadTadpole():
     sprite0 = pygame.image.load("tadpole0.png")
     sprite1 = pygame.image.load("tadpole1.png")
     sprite2 = pygame.image.load("tadpole2.png")    
-    nodesToWin = 1
+    nodesToWin = 5
     name = "tadpole"
     path = "reptile"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -1017,7 +988,7 @@ def loadFrog():
     sprite0 = pygame.image.load("frog0.png")
     sprite1 = pygame.image.load("frog1.png")
     sprite2 = pygame.image.load("frog2.png")    
-    nodesToWin = 1
+    nodesToWin = 7
     name = "frog"
     path = "reptile"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -1029,7 +1000,7 @@ def loadNewt():
     sprite0 = pygame.image.load("newt0.png")
     sprite1 = pygame.image.load("newt1.png")
     sprite2 = pygame.image.load("newt2.png")    
-    nodesToWin = 1
+    nodesToWin = 9
     name = "newt"
     path = "reptile"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -1041,7 +1012,7 @@ def loadSnake():
     sprite0 = pygame.image.load("snake0.png")
     sprite1 = pygame.image.load("snake1.png")
     sprite2 = pygame.image.load("snake2.png")    
-    nodesToWin = 1
+    nodesToWin = 11
     name = "snake"
     path = "reptile"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -1053,7 +1024,7 @@ def loadTurtle():
     sprite0 = pygame.image.load("turtle0.png")
     sprite1 = pygame.image.load("turtle1.png")
     sprite2 = pygame.image.load("turtle2.png")    
-    nodesToWin = 1
+    nodesToWin = 13
     name = "turtle"
     path = "reptile"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -1065,7 +1036,7 @@ def loadIguana():
     sprite0 = pygame.image.load("iguana0.png")
     sprite1 = pygame.image.load("iguana1.png")
     sprite2 = pygame.image.load("iguana2.png")    
-    nodesToWin = 1
+    nodesToWin = 15
     name = "iguana"
     path = "reptile"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -1077,7 +1048,7 @@ def loadCrocodile():
     sprite0 = pygame.image.load("crocodile0.png")
     sprite1 = pygame.image.load("crocodile1.png")
     sprite2 = pygame.image.load("crocodile2.png")    
-    nodesToWin = 1
+    nodesToWin = 17
     name = "crocodile"
     path = "reptile"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -1089,7 +1060,7 @@ def loadDragon():
     sprite0 = pygame.image.load("dragon0.png")
     sprite1 = pygame.image.load("dragon1.png")
     sprite2 = pygame.image.load("dragon2.png")    
-    nodesToWin = 1
+    nodesToWin = 20
     name = "dragon"
     path = "reptile"        
     spriteList = [sprite0, sprite1, sprite2]    
@@ -1108,16 +1079,13 @@ def loadDragon2():
     thisLevel = Level(name,background,spriteList,nodesToWin, path) 
     return thisLevel
 
-
 def loadJesus3():
     background = pygame.image.load("heaven1.jpg")
-    sprite0 = pygame.image.load("jesus0.png")
-    sprite1 = pygame.image.load("jesus1.png")
-    sprite2 = pygame.image.load("jesus2.png")    
+    sprite0 = pygame.image.load("endingBlip.png")
     nodesToWin = 1
     name = "jesus3"
     path = "reptile"        
-    spriteList = [sprite0, sprite1, sprite2]    
+    spriteList = [sprite0]    
     thisLevel = Level(name,background,spriteList,nodesToWin, path) 
     return thisLevel
 
@@ -1128,7 +1096,7 @@ def loadBug():
     bug0 = pygame.image.load("bug0.png")
     bug1 = pygame.image.load("bug1.png")
     bug2 = pygame.image.load("bug2.png")    
-    nodesToWin = 1
+    nodesToWin = 5
     name = "bug"
     path = "squid"
     spriteList = [bug0, bug1, bug2]    
@@ -1188,7 +1156,7 @@ def mainMenu():
                             'How To Play',
                             'Leaderboard',
                             'Survival',
-                            'Quit Game'], 64,64,None,32,1.4,PURPLE,RED)
+                            'Quit Game'], 64,64,"rage",64,.9,WHITE,RED)
     
     if choose == 0: #New game
         currentPlayer = Player("Player",0,"amoeba", "squid")
@@ -1305,7 +1273,7 @@ def submitToLeaderboard(Player):
     checkForKeyPress()    
     
 def drawPressKeyMsg():
-    pressKeySurf = BASICFONT.render('Press any key to play.', True, BLACK)
+    pressKeySurf = BASICFONT.render('', True, WHITE)
     pressKeyRect = pressKeySurf.get_rect()
     pressKeyRect.topleft = (WINDOWWIDTH - 200, WINDOWHEIGHT - 30)
     DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
@@ -1444,7 +1412,7 @@ def showGameOverScreen(Level, Player):
         'Resume from last level',
         'Main Menu',
         'Submit To Leaderboard',
-        'Quit Game'], 64,64,None,32,1.4,PURPLE,RED)
+        'Quit Game'], 64,64,"rage",64,.9,WHITE,RED)
         
     if choose == 0: #Resume from last level 
         
@@ -1498,9 +1466,6 @@ def runGame(Level, Player):
 
     # Place food in random space
     food = getRandomLocation()
-    
-    # Place poison in random space
-    #poison = getRandomLocation() #Disabled for testing
 
     while True: # main game loop        
         for event in pygame.event.get(): # event handling loop
@@ -1550,7 +1515,6 @@ def runGame(Level, Player):
         DISPLAYSURF.fill(BGCOLOR)
         drawGrid(Level)
         drawplayer(playerCoords, Level)
-        #drawpoison(poison) #Disabled for testing purposes
         drawfood(food)
         score = drawScore(len(playerCoords) - 3, Player)                
         Player.setCurrentLevel(Level.name)        
